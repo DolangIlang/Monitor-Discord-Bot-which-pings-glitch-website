@@ -37,18 +37,43 @@ setInterval(function() {
       });
     });
   });
-  console.log("Interval :)")
-  client.user.setActivity(`!monitor | Watching ${count} website`);
-}, 240000);
+  console.log("Interval :)" + count + " || " + invcount)
+  //client.user.setActivity(`!monitor | Watching ${count} website`);
+}, 24 * 1000);
 
 app.get("/", async (request, response) => {
+  response.sendFile("./index.html", { root: __dirname });
+})
+app.get("/monitor/:url", async (req, res) => {
+  var validUrl = require('valid-url');
+
+var url = "https://" + req.params.url;
+if (validUrl.isUri(url)){
+  const database = JSON.parse(fs.readFileSync("./link.json", "utf8"));
+  database.push({
+    id: Math.random(),
+    name: Math.random(),
+    link: req.params.url,
+  })
+  res.send("Add " + url)
+} else {
+  
+}
+})
+
+app.get("/list", async (request, response) => {
+  let data = JSON.parse(fs.readFileSync("./link.json", "utf8"));
+  response.send(data)
+})
+
+app.get("/stats", async (request, response) => {
   response.writeHead(200, { "Content-Type": "text/plain" });
   response.end(
     `Monitoring ${count} websites and ${invcount} Invalid website with ${user} Users, Fetch Number : ${rounds}`
   );
 });
 
-const listener = server.listen(2022, function() {
+const listener = server.listen(8080, function() {
   console.log(`Your app is listening on port ` + listener.address().port);
 });
 
@@ -226,7 +251,7 @@ client.on("message", async message => {
   }
 });
 
-client.login(TOKEN);
+//client.login(TOKEN);
 
 function isURL(url) {
   if (!url) return false;
